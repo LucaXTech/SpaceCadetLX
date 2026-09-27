@@ -47,16 +47,25 @@ jobs:
         run: |
           env -i bash -c '. /opt/webos-sdk-x86_64/1.0.g/environment-setup-armv7a-neon-webos-linux-gnueabi && env' >> "$GITHUB_ENV"
 
+      - name: Create build directory
+        run: cmake -E make_directory "$GITHUB_WORKSPACE/build"
+
       - name: Configure
+        working-directory: ${{ github.workspace }}/build
+        shell: bash
         run: |
-          cmake -S "$GITHUB_WORKSPACE" -B "$GITHUB_WORKSPACE/build" \
+          cmake "$GITHUB_WORKSPACE" \
             -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
             -DWEBOS=ON \
             -DCMAKE_TOOLCHAIN_FILE=/opt/webos-sdk-x86_64/1.0.g/sysroots/x86_64-webossdk-linux/usr/share/cmake/OEToolchainConfig.cmake
 
       - name: Build IPK
-        run: |
-          cmake --build "$GITHUB_WORKSPACE/build" --config "$BUILD_TYPE" --target webos-package
+        working-directory: ${{ github.workspace }}/build
+        shell: bash
+        run: cmake --build . --config "$BUILD_TYPE" --target webos-package
+
+      - name: Verify package
+        run: ls -lah "$GITHUB_WORKSPACE"/*.ipk "$GITHUB_WORKSPACE"/webosbrew.manifest.json
 
       - name: Upload IPK
         uses: actions/upload-artifact@v4
