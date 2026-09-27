@@ -12,6 +12,69 @@ char high_score::default_name[32]{};
 high_score_struct* high_score::dlg_hst;
 bool high_score::ShowDialog = false;
 
+#ifdef _SDL_webOS_h
+static void FeedWebOsPhysicalKeyboardText()
+{
+	static Uint8 previous[SDL_NUM_SCANCODES]{};
+	int keyCount = 0;
+	const Uint8* current = SDL_GetKeyboardState(&keyCount);
+	if (!current || keyCount <= 0)
+		return;
+
+	const auto mods = SDL_GetModState();
+	const bool shift = (mods & KMOD_SHIFT) != 0;
+	const bool caps = (mods & KMOD_CAPS) != 0;
+
+	auto newlyPressed = [&](SDL_Scancode scancode)
+	{
+		const int index = static_cast<int>(scancode);
+		return index >= 0 && index < keyCount && current[index] && !previous[index];
+	};
+
+	auto addCharacter = [](char value)
+	{
+		ImGui::GetIO().AddInputCharacter(static_cast<ImWchar>(static_cast<unsigned char>(value)));
+	};
+
+	// Letters. Scancodes A..Z are contiguous in SDL.
+	for (int index = 0; index < 26; ++index)
+	{
+		auto scancode = static_cast<SDL_Scancode>(SDL_SCANCODE_A + index);
+		if (newlyPressed(scancode))
+			addCharacter(static_cast<char>(((shift ^ caps) ? 'A' : 'a') + index));
+	}
+
+	// Number row. Keep digits literal: enough for player/high-score names and
+	// independent from the TV keyboard-layout implementation.
+	static const SDL_Scancode numberScancodes[10]
+	{
+		SDL_SCANCODE_0, SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3, SDL_SCANCODE_4,
+		SDL_SCANCODE_5, SDL_SCANCODE_6, SDL_SCANCODE_7, SDL_SCANCODE_8, SDL_SCANCODE_9
+	};
+	for (int index = 0; index < 10; ++index)
+		if (newlyPressed(numberScancodes[index]))
+			addCharacter(static_cast<char>('0' + index));
+
+	// Numeric keypad.
+	static const SDL_Scancode keypadScancodes[10]
+	{
+		SDL_SCANCODE_KP_0, SDL_SCANCODE_KP_1, SDL_SCANCODE_KP_2, SDL_SCANCODE_KP_3, SDL_SCANCODE_KP_4,
+		SDL_SCANCODE_KP_5, SDL_SCANCODE_KP_6, SDL_SCANCODE_KP_7, SDL_SCANCODE_KP_8, SDL_SCANCODE_KP_9
+	};
+	for (int index = 0; index < 10; ++index)
+		if (newlyPressed(keypadScancodes[index]))
+			addCharacter(static_cast<char>('0' + index));
+
+	if (newlyPressed(SDL_SCANCODE_SPACE))
+		addCharacter(' ');
+	if (newlyPressed(SDL_SCANCODE_MINUS))
+		addCharacter(shift ? '_' : '-');
+
+	for (int index = 0; index < SDL_NUM_SCANCODES; ++index)
+		previous[index] = index < keyCount ? current[index] : 0;
+}
+#endif
+
 
 int high_score::read(high_score_struct* table)
 {
@@ -179,6 +242,9 @@ void high_score::RenderHighScoreDialog()
 					ImGui::PushItemWidth(320);
 					if (ImGui::IsWindowAppearing())
 						ImGui::SetKeyboardFocusHere();
+#ifdef _SDL_webOS_h
+					FeedWebOsPhysicalKeyboardText();
+#endif
 					ImGui::InputText("", default_name, IM_ARRAYSIZE(default_name));
 				}
 				else
