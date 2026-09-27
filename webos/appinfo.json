@@ -1,11 +1,11 @@
 {
-  "id": "com.github.k4zmu2a.space-cadet-pinball",
-  "version": "0.0.3",
-  "vendor": "webOS Brew Project",
+  "id": "com.lucaxtech.space-cadet-lx",
+  "version": "1.0.0",
+  "vendor": "LucaXTech",
   "type": "native",
   "main": "SpaceCadetPinball",
-  "title": "Pinball",
+  "title": "Space Cadet LX",
   "icon": "icon.png",
   "splashBackground": "splash.png",
-  "appDescription": "Technical Demo for SpaceCadetPinball"
+  "appDescription": "Space Cadet LX - webOS Edition"
 }

@@ -66,7 +66,7 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 	char* dataSearchPaths[2]
 	{
 		 SDL_GetBasePath(),
-		 SDL_GetPrefPath(nullptr, "SpaceCadetPinball")
+		 SDL_GetPrefPath(nullptr, "SpaceCadetLX")
 	};
 	std::string datFileNames[2]
 	{
@@ -147,8 +147,9 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 	ImIO = &io;
 	// ImGui_ImplSDL2_Init is private, we are not actually using ImGui OpenGl backend
 	ImGui_ImplSDL2_InitForOpenGL(window, nullptr);
+	SDL_StartTextInput();
 
-	auto prefPath = SDL_GetPrefPath(nullptr, "SpaceCadetPinball");
+	auto prefPath = SDL_GetPrefPath(nullptr, "SpaceCadetLX");
 	auto iniPath = std::string(prefPath) + "imgui_pb.ini";
 	io.IniFilename = iniPath.c_str();
 	SDL_free(prefPath);
@@ -317,6 +318,7 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 	midi::music_shutdown();
 	pb::uninit();
 	Sound::Close();
+	SDL_StopTextInput();
 	ImGuiSDL::Deinitialize();
 	ImGui_ImplSDL2_Shutdown();
 	SDL_DestroyRenderer(renderer);
@@ -572,7 +574,7 @@ void winmain::RenderUi()
 			}
 			ImGui::Separator();
 
-			if (ImGui::MenuItem("About Pinball"))
+			if (ImGui::MenuItem("About Space Cadet LX"))
 			{
 				if (!single_step)
 					pause();
@@ -880,7 +882,8 @@ void winmain::a_dialog()
 	bool unused_open = true;
 	if (ImGui::BeginPopupModal("About", &unused_open, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::TextUnformatted("3D Pinball for Windows - Space Cadet");
+		ImGui::TextUnformatted("Space Cadet LX - webOS Edition");
+		ImGui::TextUnformatted("LucaXTech adaptation for LG webOS");
 		ImGui::TextUnformatted("Original game by Cinematronics, Microsoft");
 		ImGui::Separator();
 

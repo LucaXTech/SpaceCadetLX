@@ -1,0 +1,68 @@
+name: Build Space Cadet LX for webOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'lx/**'
+
+env:
+  BUILD_TYPE: RelWithDebInfo
+
+jobs:
+  build-webos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install webOS CLI and build dependencies
+        run: |
+          sudo apt-get -qq update
+          sudo npm install -g @webosose/ares-cli
+          sudo apt-get -y install imagemagick
+
+      - name: Download webOS NDK
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/temp"
+          wget -q \
+            https://github.com/webosbrew/meta-lg-webos-ndk/releases/download/1.0.g-rev.4/webos-sdk-x86_64-armv7a-neon-toolchain-1.0.g.sh \
+            -O "$GITHUB_WORKSPACE/temp/webos-sdk.sh"
+
+      - name: Install webOS NDK
+        run: |
+          chmod 755 "$GITHUB_WORKSPACE/temp/webos-sdk.sh"
+          sudo "$GITHUB_WORKSPACE/temp/webos-sdk.sh" -y
+
+      - name: Initialize NDK environment
+        run: |
+          env -i bash -c '. /opt/webos-sdk-x86_64/1.0.g/environment-setup-armv7a-neon-webos-linux-gnueabi && env' >> "$GITHUB_ENV"
+
+      - name: Configure
+        run: |
+          cmake -S "$GITHUB_WORKSPACE" -B "$GITHUB_WORKSPACE/build" \
+            -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
+            -DWEBOS=ON \
+            -DCMAKE_TOOLCHAIN_FILE=/opt/webos-sdk-x86_64/1.0.g/sysroots/x86_64-webossdk-linux/usr/share/cmake/OEToolchainConfig.cmake
+
+      - name: Build IPK
+        run: |
+          cmake --build "$GITHUB_WORKSPACE/build" --config "$BUILD_TYPE" --target webos-package
+
+      - name: Upload IPK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpaceCadetLX-webOS-armv7
+          path: |
+            *.ipk
+            webosbrew.manifest.json
+          if-no-files-found: error

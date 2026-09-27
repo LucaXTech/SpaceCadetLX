@@ -86,10 +86,10 @@ void options::init()
 
 	Options.Sounds = get_int("Sounds", true);
 	Options.Music = get_int("Music", false);
-	Options.FullScreen = get_int("FullScreen", false);
+	Options.FullScreen = get_int("FullScreen", true);
 	Options.Players = get_int("Players", 1);
 	Options.UniformScaling = get_int("Uniform scaling", true);
-	ImGui::GetIO().FontGlobalScale = get_float("UI Scale", 1.0f);
+	ImGui::GetIO().FontGlobalScale = get_float("UI Scale", 1.15f);
 	Options.Resolution = get_int("Screen Resolution", -1);
 	Options.LinearFiltering = get_int("Linear Filtering", true);
 	Options.FramesPerSecond = std::min(MaxFps, std::max(MinUps, get_int("Frames Per Second", DefFps)));

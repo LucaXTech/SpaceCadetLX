@@ -176,7 +176,9 @@ void high_score::RenderHighScoreDialog()
 				{
 					offset = -1;
 					score = dlg_score;
-					ImGui::PushItemWidth(200);
+					ImGui::PushItemWidth(320);
+					if (ImGui::IsWindowAppearing())
+						ImGui::SetKeyboardFocusHere();
 					ImGui::InputText("", default_name, IM_ARRAYSIZE(default_name));
 				}
 				else
@@ -192,7 +194,7 @@ void high_score::RenderHighScoreDialog()
 		}
 		ImGui::Separator();
 
-		if (ImGui::Button("Ok"))
+		if (ImGui::Button("Ok", ImVec2(120, 0)))
 		{
 			if (dlg_enter_name)
 			{
@@ -203,11 +205,11 @@ void high_score::RenderHighScoreDialog()
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Cancel"))
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
 			ImGui::CloseCurrentPopup();
 
 		ImGui::SameLine();
-		if (ImGui::Button("Clear"))
+		if (ImGui::Button("Clear", ImVec2(120, 0)))
 			ImGui::OpenPopup("Confirm");
 		if (ImGui::BeginPopupModal("Confirm", nullptr, ImGuiWindowFlags_MenuBar))
 		{

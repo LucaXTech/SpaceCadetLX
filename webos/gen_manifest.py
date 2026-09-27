@@ -34,8 +34,8 @@ with open(outfile, 'w') as f:
         'type': appinfo['type'],
         'title': appinfo['title'],
         'appDescription': appinfo['appDescription'],
-        'iconUri': 'https://github.com/webosbrew/SpaceCadetPinball/raw/webos/webos/icon.png',
-        'sourceUrl': 'https://github.com/webosbrew/SpaceCadetPinball',
+        'iconUri': 'https://github.com/LucaXTech/SpaceCadetLX/raw/main/webos/icon.png',
+        'sourceUrl': 'https://github.com/LucaXTech/SpaceCadetLX',
         'rootRequired': False,
         'ipkUrl': pkgfile,
         'ipkHash': {
